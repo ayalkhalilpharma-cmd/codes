@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة أكواد الأصناف | MENA NAZIH</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --item-bg: #ffffff;
+            --text-dark: #333;
+            --num-color: #27ae60;
+            --letter-color: #e67e22;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 95vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* حاوية الأقسام الرئيسية */
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            flex-grow: 1; /* لجعل الفوتر ينزل لأسفل الصفحة */
+        }
+
+        /* زر القسم الرئيسي */
+        .category-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .category-btn span.icon {
+            font-size: 40px;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-5px);
+            background-color: var(--secondary);
+        }
+
+        /* حاوية الأصناف التي تظهر عند الضغط */
+        .items-panel {
+            display: none; 
+            width: 100%;
+            background: #eef2f5;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 10px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .category-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* الأقسام الفرعية */
+        .subcategory-title {
+            width: 100%;
+            text-align: right;
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .items-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* زر الصنف */
+        .item-btn {
+            position: relative;
+            background-color: var(--item-bg);
+            color: var(--text-dark);
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            min-width: 120px;
+        }
+
+        .item-btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+        }
+
+        .item-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* تصميم البالونات */
+        .balloons {
+            position: absolute;
+            bottom: 110%; 
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+            pointer-events: none; 
+        }
+
+        .item-btn:hover .balloons {
+            opacity: 1;
+            visibility: visible;
+            bottom: 125%;
+        }
+
+        .balloon {
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .num-balloon { background-color: var(--num-color); }
+        .letter-balloon { background-color: var(--letter-color); }
+        .copy-msg { background-color: #e74c3c; display: none; }
+
+        .balloons::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--num-color) transparent transparent transparent;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* إشعار النسخ المنبثق */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+
+        /* تصميم الفوتر (الاسم) */
+        .footer-signature {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px dashed #bdc3c7;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .footer-signature .name {
+            display: block;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>لوحة الأصناف والأكواد</h1>
+    <div id="app" class="categories-container"></div>
+    <div id="toast">تم نسخ الكود الرقمي بنجاح!</div>
+
+    <div class="footer-signature">
+        Developed & Designed by
+        <span class="name">MENA NAZIH</span>
+    </div>
+
+    <script>
+        const data = [
+            {
+                name: "Water", icon: "💧",
+                items: [
+                    { name: "water-antibiotics", num: "180833", letter: "" },
+                    { name: "water-injection", num: "149064", letter: "" },
+                    { name: "water-big", num: "175722", letter: "" }
+                ]
+            },
+            {
+                name: "Gauze", icon: "🧻",
+                subcategories: [
+                    { name: "Mahalla", items: [
+                        { name: "5cm", num: "101195", letter: "" },
+                        { name: "7.5cm", num: "101197", letter: "" },
+                        { name: "11cm", num: "101194", letter: "" }
+                    ]},
+                    { name: "Investment", items: [
+                        { name: "5cm", num: "101191", letter: "" },
+                        { name: "7.5cm", num: "101197", letter: "" },
+                        { name: "10cm", num: "101189", letter: "" },
+                        { name: "15cm", num: "101190", letter: "" }
+                    ]}
+                ]
+            },
+            {
+                name: "Syringe", icon: "💉",
+                subcategories: [
+                    { name: "Injection", items: [
+                        { name: "3cm adult", num: "104105", letter: "SA3" },
+                        { name: "3cm children", num: "104114", letter: "SC3" },
+                        { name: "3cm infant", num: "144258", letter: "" },
+                        { name: "5cm", num: "104104", letter: "S5" },
+                        { name: "1cm insulin (local)", num: "104123", letter: "SI100" },
+                        { name: "1cm insulin (sungshim)", num: "108245", letter: "" },
+                        { name: "10cm", num: "104106", letter: "S10" },
+                        { name: "20cm", num: "104109", letter: "" },
+                        { name: "50cm tome", num: "104103", letter: "" },
+                        { name: "60cm", num: "107213", letter: "" }
+                    ]},
+                    { name: "Oral", items: [
+                        { name: "5cm", num: "141107", letter: "SO5" },
+                        { name: "10cm", num: "145436", letter: "SO10" },
+                        { name: "50cm tome", num: "104110", letter: "" }
+                    ]}
+                ]
+            },
+            {
+                name: "Cotton", icon: "☁️",
+                subcategories: [
+                    { name: "Investment", items: [
+                        { name: "25 gm", num: "114241", letter: "CO25" },
+                        { name: "50 gm", num: "105721", letter: "CO50" },
+                        { name: "100 gm", num: "105722", letter: "CO100" },
+                        { name: "250 gm", num: "104870", letter: "CO250" },
+                        { name: "500 gm", num: "104869", letter: "CO500" }
+                    ]},
+                    { name: "Mahalla", items: [
+                        { name: "25 gm", num: "175348", letter: "" },
+                        { name: "50 gm", num: "165527", letter: "" },
+                        { name: "100 gm", num: "165528", letter: "" },
+                        { name: "250 gm", num: "165529", letter: "" },
+                        { name: "500 gm", num: "149952", letter: "" }
+                    ]}
+                ]
+            },
+            {
+                name: "Delivery Fees", icon: "🛵",
+                items: [
+                    { name: "Cash", num: "140566", letter: "DFC10" },
+                    { name: "Contract", num: "163376", letter: "DFC15" },
+                    { name: "Lab", num: "141078", letter: "DFLAB" },
+                    { name: "Instashop", num: "179065", letter: "" }
+                ]
+            },
+            {
+                name: "Dressing", icon: "🩹",
+                subcategories: [
+                    { name: "Tri M", items: [
+                        { name: "6*8", num: "102927", letter: "TM68" },
+                        { name: "10*10", num: "138838", letter: "" },
+                        { name: "10*12", num: "102922", letter: "TM1012" },
+                        { name: "10*18", num: "102924", letter: "TM1018" },
+                        { name: "10*20", num: "110065", letter: "" },
+                        { name: "10*25", num: "102925", letter: "TM1025" },
+                        { name: "10*30", num: "166065", letter: "TM1030" },
+                        { name: "10*35", num: "102926", letter: "TM1035" }
+                    ]},
+                    { name: "Surgical Pad", items: [
+                        { name: "10X10 CM", num: "80167", letter: "SP1010" },
+                        { name: "10X20 CM", num: "80168", letter: "SP1020" },
+                        { name: "15X25 CM", num: "96734", letter: "SP1525" }
+                    ]}
+                ]
+            },
+            {
+                name: "Services", icon: "🩺",
+                items: [
+                    { name: "Weight Scale", num: "113825", letter: "WS" },
+                    { name: "In Body", num: "154224", letter: "IB" },
+                    { name: "Blood Pressure", num: "105698", letter: "BP" },
+                    { name: "Sugar Test", num: "105697", letter: "ST" }
+                ]
+            },
+            {
+                name: "Miscellaneous", icon: "📦",
+                items: [
+                    { name: "Plaster", num: "7926", letter: "PL" },
+                    { name: "Plaster Transparent", num: "152761", letter: "PLTR" },
+                    { name: "Rivo", num: "145719", letter: "RIVO" },
+                    { name: "Mask", num: "159761", letter: "" },
+                    { name: "Medicine", num: "171314", letter: "" },
+                    { name: "CIDOPHAGE 500", num: "179292", letter: "" }
+                ]
+            },
+            {
+                name: "ER", icon: "🚑",
+                subcategories: [
+                    { name: "IV", items: [
+                        { name: "INFUSION SET", num: "101519", letter: "" },
+                        { name: "BLOOD SET", num: "102254", letter: "" },
+                        { name: "CANNULA 22 BLUE", num: "101691", letter: "" },
+                        { name: "CANNULA 24 YELLOW", num: "101692", letter: "" },
+                        { name: "CANNULA 20 ROSE", num: "101689", letter: "" },
+                        { name: "CANNULA 18 GREEN", num: "101688", letter: "" },
+                        { name: "CANNULA 26 VIOLET", num: "127738", letter: "" },
+                        { name: "CANNULA 14 ORANGE", num: "105929", letter: "" },
+                        { name: "CANNULA 16 GREY", num: "101687", letter: "" }
+                    ]},
+                    { name: "Respiratory", items: [
+                        { name: "INFANT NOSE CANNULA", num: "150600", letter: "" },
+                        { name: "CHILD NOSE CANNULA", num: "150598", letter: "" },
+                        { name: "ADULT NOSE CANNULA", num: "150599", letter: "" },
+                        { name: "CHILD NEBULIZER", num: "109421", letter: "" },
+                        { name: "ADULT NEBULIZER", num: "109422", letter: "" },
+                        { name: "CHILD OXYGEN", num: "114195", letter: "" },
+                        { name: "ADULT OXYGEN", num: "103074", letter: "" }
+                    ]}
+                ]
+            }
+        ];
+
+        const appContainer = document.getElementById('app');
+
+        function createItemBtn(item) {
+            let letterBalloonHtml = item.letter ? `<span class="balloon letter-balloon">كود: ${item.letter}</span>` : '';
+            return `
+                <button class="item-btn" onclick="copyToClipboard('${item.num}', this)">
+                    ${item.name}
+                    <div class="balloons">
+                        <span class="balloon num-balloon">رقم: ${item.num}</span>
+                        ${letterBalloonHtml}
+                        <span class="balloon copy-msg">تم النسخ!</span>
+                    </div>
+                </button>
+            `;
+        }
+
+        data.forEach((category, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'category-wrapper';
+
+            const mainBtn = document.createElement('button');
+            mainBtn.className = 'category-btn';
+            mainBtn.innerHTML = `<span class="icon">${category.icon}</span> <span>${category.name}</span>`;
+            
+            const panel = document.createElement('div');
+            panel.className = 'items-panel';
+            panel.id = `panel-${index}`;
+
+            let panelHtml = '';
+
+            if (category.items) {
+                panelHtml += `<div class="items-grid">`;
+                category.items.forEach(item => {
+                    panelHtml += createItemBtn(item);
+                });
+                panelHtml += `</div>`;
+            } 
+            else if (category.subcategories) {
+                category.subcategories.forEach(sub => {
+                    panelHtml += `<div class="subcategory-title">${sub.name}</div>`;
+                    panelHtml += `<div class="items-grid">`;
+                    sub.items.forEach(item => {
+                        panelHtml += createItemBtn(item);
+                    });
+                    panelHtml += `</div>`;
+                });
+            }
+
+            panel.innerHTML = panelHtml;
+
+            mainBtn.onclick = function() {
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            };
+
+            wrapper.appendChild(mainBtn);
+            wrapper.appendChild(panel);
+            appContainer.appendChild(wrapper);
+        });
+
+        function copyToClipboard(num, btnElement) {
+            navigator.clipboard.writeText(num).then(() => {
+                const toast = document.getElementById("toast");
+                toast.innerText = `تم نسخ الكود: ${num}`;
+                toast.className = "show";
+                setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+
+                const copyMsg = btnElement.querySelector('.copy-msg');
+                const otherBalloons = btnElement.querySelectorAll('.num-balloon, .letter-balloon');
+                
+                otherBalloons.forEach(b => b.style.display = 'none');
+                copyMsg.style.display = 'block';
+
+                setTimeout(() => {
+                    otherBalloons.forEach(b => b.style.display = 'block');
+                    copyMsg.style.display = 'none';
+                }, 1500);
+
+            }).catch(err => {
+                console.error('فشل في نسخ النص: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
